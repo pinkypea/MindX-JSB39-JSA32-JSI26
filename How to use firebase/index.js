@@ -7,10 +7,12 @@ function loadProducts() {
                 // doc.data() is never undefined for query doc snapshots
                 const product = doc.data();
                 const productElement = document.createElement('div');
+                productElement.classList.add('product');
                 productElement.innerHTML = `
             <img src=${product.image}>
             <p>Name: ${product.name}</p>
-            <p>Price: $${product.price}</p>`
+            <p>Price: $${product.price}</p>
+            <button>Add to cart</button>`
 
                 productsContainer.appendChild(productElement);
             });
