@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Document</title>
-    <link rel="stylesheet" href="index.css">
+    <link rel="stylesheet" href="cart.css">
 </head>
 <body>
     <nav class="navbar">
@@ -21,19 +21,19 @@
         </div>
         <div class="user-info" id="user-info" style="display: none;">
             <span id="username"></span>
-            <button class="user-button" id="cart-btn"><a href="./shoping-cart/cart.html"><img src="cart.png" alt=""></a></button>
+            <button class="user-button" id="cart-btn"><img src="cart.png" alt=""></button>
             <button class="user-button" id="logout-btn"><img src="logout.png" alt=""></button>
         </div>
     </nav>
 
-    <div id="products-container"></div>
+    <div id="cart-container"></div>
     
     <!-- Firebase config -->
     <script src="https://www.gstatic.com/firebasejs/11.4.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/11.5.0/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/11.5.0/firebase-firestore-compat.js"></script>
 
-    <script src="firebase-config.js"></script>
-    <script src="index.js"></script>
+    <script src="../firebase-config.js"></script>
+    <script src="cart.js"></script>
 </body>
 </html>

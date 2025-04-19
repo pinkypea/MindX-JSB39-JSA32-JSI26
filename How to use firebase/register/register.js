@@ -20,6 +20,13 @@ function handleRegister(event) {
         .then((userCredential) => {
             // Signed in 
             var user = userCredential.user;
+            return firebase.firestore().collection('users').doc(user.uid).set({
+                username: username,
+                email: email,
+                createdAt: firebase.firestore.FieldValue.serverTimestamp()
+            });
+        })
+        .then(() => {
             alert("Sign up sucessfully!!!");
             window.location.href = "../index.html";
         })

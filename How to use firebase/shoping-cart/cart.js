@@ -1,49 +1,33 @@
-function loadProducts() {
-    const productsContainer = document.querySelector('#products-container');
-    productsContainer.innerHTML = ' ';
-    db.collection("products").get()
+function loadCartProducts() {
+    const cartContainer = document.getElementById('cart-container');
+    cartContainer.innerHTML = '';
+
+    db.collection('products').where('onCart', '==', true).get()
         .then((querySnapshot) => {
+            if (querySnapshot.empty) {
+                cartContainer.innerHTML = '<p>Giỏ hàng của bạn đang trống.</p>';
+                return;
+            }
+
             querySnapshot.forEach((doc) => {
-                // doc.data() is never undefined for query doc snapshots
                 const product = doc.data();
                 const productElement = document.createElement('div');
                 productElement.classList.add('product');
                 productElement.innerHTML = `
-            <img src=${product.image}>
-            <p>Name: ${product.name}</p>
-            <p>Price: $${product.price}</p>
-            <button class="add-to-cart-btn" data-id="${doc.id}">Add to cart</button>`
-
-                productsContainer.appendChild(productElement);
-            });
-            // Gán sự kiện cho tất cả nút "Add to cart"
-            document.querySelectorAll('.add-to-cart-btn').forEach(btn => {
-                btn.addEventListener('click', () => {
-                    const productId = btn.getAttribute('data-id');
-                    updateProductOnCart(productId);
-                });
+                    <img src="${product.image}" width="100" />
+                    <p><strong>${product.name}</strong></p>
+                    <p>Price: $${product.price}</p>
+                `;
+                cartContainer.appendChild(productElement);
             });
         })
         .catch((error) => {
-            console.log("Error", error)
+            console.error('Lỗi khi lấy sản phẩm trong giỏ hàng: ', error);
+            cartContainer.innerHTML = '<p>Không thể tải giỏ hàng.</p>';
         });
 }
 
-window.onload = loadProducts;
-
-function updateProductOnCart(productId) {
-    db.collection("products").doc(productId).update({
-        "onCart": true
-    })
-    .then(() => {
-        console.log("Sản phẩm đã thêm vào giỏ hàng.");
-        // Nếu muốn ẩn nút hoặc cập nhật giao diện, bạn có thể gọi lại loadProducts() hoặc thay đổi nội dung tại chỗ.
-        loadProducts();
-    })
-    .catch((error) => {
-        console.error("Lỗi khi thêm vào giỏ hàng: ", error);
-    });
-}
+window.onload = loadCartProducts;
 
 const userInfo = document.getElementById('user-info');
 const usernameDisplay = document.getElementById('username');
