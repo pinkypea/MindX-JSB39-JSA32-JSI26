@@ -1,3 +1,16 @@
+function updateProductOnCart(productId) {
+    db.collection('products').doc(productId).update({
+        "onCart": true
+    })
+    .then(() => {
+        console.log("Sản phẩm đã được thêm vào giỏ hàng");
+        loadProducts();
+    })
+    .catch ((error) => {
+        console.log("Lỗi không thêm được sản phẩm vào giỏ hàng", error);
+    });
+}
+
 function loadProducts() {
     const productsContainer = document.querySelector('#products-container');
     productsContainer.innerHTML = ' ';
@@ -31,59 +44,40 @@ function loadProducts() {
 
 window.onload = loadProducts;
 
-function updateProductOnCart(productId) {
-    db.collection("products").doc(productId).update({
-        "onCart": true
-    })
-    .then(() => {
-        console.log("Sản phẩm đã thêm vào giỏ hàng.");
-        // Nếu muốn ẩn nút hoặc cập nhật giao diện, bạn có thể gọi lại loadProducts() hoặc thay đổi nội dung tại chỗ.
-        loadProducts();
-    })
-    .catch((error) => {
-        console.error("Lỗi khi thêm vào giỏ hàng: ", error);
-    });
-}
+const userInfor = document.querySelector('#user-infor');
+const usernameDisplay = document.querySelector('#username');
+const authBtn = document.querySelector('#auth-buttons');
 
-const userInfo = document.getElementById('user-info');
-const usernameDisplay = document.getElementById('username');
-const logoutBtn = document.getElementById('logout-btn');
-const authBtn = document.getElementById('auth-buttons');
-
-// Listen for user authentication state changes
-auth.onAuthStateChanged(user => {
-    console.log("User status changed:", user);
+firebase.auth().onAuthStateChanged((user) => {
     if (user) {
-        // Lấy thông tin user từ Firestore
-        db.collection('users').doc(user.uid).get()
-            .then((doc) => {
-                if (doc.exists) {
-                    const userData = doc.data();
-                    usernameDisplay.textContent = `Hello ${userData.username}`;
-                }
-            })
-            .catch((error) => {
-                console.error("Error getting user data: ", error);
-            });
+      // User is signed in, see docs for a list of available properties
+      // https://firebase.google.com/docs/reference/js/v8/firebase.User
+      var uid = user.uid;
+      db.collection('users').doc(user.uid).get()
+      .then((doc) => {
+        if (doc.exist){
+            const userData = doc.data();
+            usernameDisplay.textContent = `Hello ${userData.username}`;
+        }
+      })
+      .catch((error) => {
+        console.error("Error getting user data:", error);
+      });
 
-        userInfo.style.display = 'flex';
-        authBtn.style.display = 'none';
-    } 
-    // else {
-    //     authButtons.style.display = 'flex';
-    //     userInfo.style.display = 'none';
-    // }
+      userInfor.style.display = 'flex';
+      authBtn.style.display = 'none';
+    }
 });
 
-// Logout functionality
-logoutBtn.addEventListener('click', () => {
-    auth.signOut().then(() => {
-        console.log('User logged out');
-        alert('User logged out');
+// Đăng xuất
+const logoutButton = document.querySelector('#logout-button');
+logoutButton.addEventListener('click', () => {
+    firebase.auth().signOut().then(() => {
+        console.log("User logged out successfully");
+        alert("User logged out");
         authBtn.style.display = 'flex';
-        userInfo.style.display = 'none';
-    })
-    .catch((error) => {
-        console.error('Logout error:', error);
-    });
+        userInfor.style.display = 'none';
+      }).catch((error) => {
+        console.log("Logout error:", error);
+      });
 });
