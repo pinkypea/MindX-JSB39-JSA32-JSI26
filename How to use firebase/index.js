@@ -1,45 +1,55 @@
 function updateProductOnCart(productId) {
-    db.collection('products').doc(productId).update({
-        "onCart": true
+    const user = firebase.auth().currentUser;
+
+    // ❌ Chưa đăng nhập
+    if (!user) {
+        alert("Vui lòng đăng nhập trước khi thêm vào giỏ hàng");
+        return;
+    }
+
+    // ✅ Đã đăng nhập
+    db.collection("products").doc(productId).update({
+        onCart: true,
+        userId: user.uid // (optional) gắn user vào sản phẩm
     })
     .then(() => {
-        console.log("Sản phẩm đã được thêm vào giỏ hàng");
-        loadProducts();
+        alert("Sản phẩm đã được thêm vào giỏ hàng");
     })
-    .catch ((error) => {
+    .catch((error) => {
         console.log("Lỗi không thêm được sản phẩm vào giỏ hàng", error);
     });
 }
 
-function loadProducts() {
-    const productsContainer = document.querySelector('#products-container');
-    productsContainer.innerHTML = ' ';
-    db.collection("products").get()
-        .then((querySnapshot) => {
-            querySnapshot.forEach((doc) => {
-                // doc.data() is never undefined for query doc snapshots
-                const product = doc.data();
-                const productElement = document.createElement('div');
-                productElement.classList.add('product');
-                productElement.innerHTML = `
-            <img src=${product.image}>
-            <p>Name: ${product.name}</p>
-            <p>Price: $${product.price}</p>
-            <button class="add-to-cart-btn" data-id="${doc.id}">Add to cart</button>`
+function loadProducts(){
+    const products_container = document.querySelector("#products-container");
 
-                productsContainer.appendChild(productElement);
+    db.collection("products").get().then((querySnapshot) => {
+        const docs = querySnapshot.docs;
+
+        for (let i = 0; i < docs.length; i++) {
+            const doc = docs[i];
+            const product = doc.data();
+
+            const productElement = document.createElement("div");
+            productElement.classList.add("product");
+
+            productElement.innerHTML = `
+                <img src="${product.image}">
+                <p>Name: ${product.name}</p>
+                <p>Price: ${product.price} VND</p>
+                <button class="add-to-cart-btn">Add to cart</button>
+            `;
+
+            // ✅ Lấy button trong chính element này
+            const button = productElement.querySelector(".add-to-cart-btn");
+
+            button.addEventListener('click', () => {
+                updateProductOnCart(doc.id);
             });
-            // Gán sự kiện cho tất cả nút "Add to cart"
-            document.querySelectorAll('.add-to-cart-btn').forEach(btn => {
-                btn.addEventListener('click', () => {
-                    const productId = btn.getAttribute('data-id');
-                    updateProductOnCart(productId);
-                });
-            });
-        })
-        .catch((error) => {
-            console.log("Error", error)
-        });
+
+            products_container.appendChild(productElement);
+        }
+    });
 }
 
 window.onload = loadProducts;
@@ -55,7 +65,7 @@ firebase.auth().onAuthStateChanged((user) => {
       var uid = user.uid;
       db.collection('users').doc(user.uid).get()
       .then((doc) => {
-        if (doc.exist){
+        if (doc.exists){
             const userData = doc.data();
             usernameDisplay.textContent = `Hello ${userData.username}`;
         }
